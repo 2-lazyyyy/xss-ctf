@@ -1,15 +1,19 @@
 <?php
-$queue_file = __DIR__ . "/public/admin_queue.txt";
-$cookie = "admin_session=FLAG{this_is_the_admin_cookie}";
+$queue_url = "https://dom-xss.onrender.com/admin_queue.txt";
+$cookie = "admin_session=flag{n1c3_j0b_1n_8ssd0m_1nject10n}";
 $useragent = "AdminBot/1.0";
 
-if (!file_exists($queue_file)) {
-    echo "No queue file.\n";
-    exit;
+$queue_content = @file_get_contents($queue_url);
+if ($queue_content === false) {
+    echo "Failed to fetch the queue file from the server.\n";
+    exit(1);
 }
 
-$urls = file($queue_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-file_put_contents($queue_file, ""); // Clear the queue
+$urls = array_filter(array_map('trim', explode("\n", $queue_content)));
+if (empty($urls)) {
+    echo "Queue is empty.\n";
+    exit(0);
+}
 
 foreach ($urls as $url) {
     echo "[+] Visiting: $url\n";
