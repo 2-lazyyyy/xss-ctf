@@ -1,0 +1,13 @@
+FROM php:8.2-apache
+
+COPY public/ /var/www/html/
+
+RUN touch /var/www/html/admin_queue.txt && chmod 666 /var/www/html/admin_queue.txt
+
+# Change Apache to listen on port 10000 (Render requirement)
+RUN sed -i 's/Listen 80/Listen 10000/' /etc/apache2/ports.conf && \
+    sed -i 's/:80/:10000/' /etc/apache2/sites-enabled/000-default.conf
+
+EXPOSE 10000
+
+CMD ["apache2-foreground"]
