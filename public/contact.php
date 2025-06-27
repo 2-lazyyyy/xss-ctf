@@ -1,6 +1,6 @@
 <?php
 $message = "";
-$allowed_prefix = "https://your-xss.onrender.com/index.php"; // Replace with your Render URL
+$allowed_prefix = "https://dom-xss.onrender.com"; // Replace with your Render URL
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $url = $_POST['url'] ?? '';
