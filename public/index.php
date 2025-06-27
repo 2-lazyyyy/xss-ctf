@@ -18,15 +18,23 @@
     <div id="state"></div>
 </body>
 
+<?php
+$number = isset($_GET['number']) ? $_GET['number'] : '';
+?>
+
 <script>
-    var number = new URLSearchParams(window.location.search).get("number");
-    var random = Math.floor(Math.random() * 100);
-    if (number == random) {
-        document.getElementById("state").style.color = "green";
-        document.getElementById("state").innerHTML = "You won this game, but no flag here ;)";
-    } else {
-        document.getElementById("state").style.color = "red";
-        document.getElementById("state").innerHTML = "Wrong answer! The right answer was " + random;
+    var number = '<?php echo $number; ?>';
+    
+    // Only evaluate if a number is actually submitted
+    if (number !== '') {
+        var random = Math.floor(Math.random() * 100);
+        if (number == random) {
+            document.getElementById("state").style.color = "green";
+            document.getElementById("state").innerHTML = "You won this game, but no flag here ;)";
+        } else {
+            document.getElementById("state").style.color = "red";
+            document.getElementById("state").innerHTML = "Wrong answer! The right answer was " + random;
+        }
     }
 </script>
 </html>
