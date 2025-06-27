@@ -7,7 +7,7 @@ const ADMIN_COOKIE = {
     value: 'flag{n1c3_j0b_1n_8ssd0m_1nject10n}',
     path: '/',
     httpOnly: false,
-    url: 'https://dom-xss.onrender.com', // Matches the target site
+    domain: 'dom-xss.onrender.com', // Use 'domain' instead of 'url' for setCookie()
 };
 
 // Custom delay function
@@ -16,10 +16,11 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 (async () => {
     console.log('[*] Fetching queue...');
 
-    // Use global fetch or fallback to node-fetch
     let fetchFn;
     try {
-        fetchFn = (typeof fetch !== 'undefined') ? fetch : (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+        fetchFn = (typeof fetch !== 'undefined')
+            ? fetch
+            : (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
     } catch (e) {
         console.error('[!] Failed to load fetch module:', e.message);
         return;
@@ -39,8 +40,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     }
 
     const data = await res.text();
-    // Split URLs, filter out empty lines, and deduplicate
-    const urls = [...new Set(data.split('\n').filter(url => url.trim() && isValidUrl(url)))];
+    const urls = [...new Set(data.split('\n').map(url => url.trim()).filter(isValidUrl))];
 
     if (urls.length === 0) {
         console.log('[!] Queue is empty.');
@@ -49,17 +49,20 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
     let browser;
     try {
-        browser = await puppeteer.launch({ headless: true });
-        const page = await browser.newPage();
+        browser = await puppeteer.launch({
+            headless: true,
+            timeout: 60000,
+            protocolTimeout: 60000,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
 
-        // Set the cookie
+        const page = await browser.newPage();
         await page.setCookie(ADMIN_COOKIE);
 
         for (const url of urls) {
             try {
                 console.log(`[+] Visiting: ${url}`);
                 await page.goto(url, { waitUntil: 'load', timeout: 10000 });
-                // Wait for 3 seconds using custom delay
                 await delay(3000);
             } catch (e) {
                 console.error(`[!] Error visiting ${url}: ${e.message}`);
@@ -75,7 +78,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     }
 })();
 
-// Helper function to validate URLs
+// Validate URL
 function isValidUrl(string) {
     try {
         new URL(string);
