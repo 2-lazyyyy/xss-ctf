@@ -1,0 +1,7 @@
+FROM php:8-cli
+
+WORKDIR /opt/render/project/src
+
+COPY . .
+
+CMD ["php", "admin_bot.php"]

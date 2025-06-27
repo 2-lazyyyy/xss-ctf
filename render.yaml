@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: xss-ctf
+    env: php
+    plan: free
+    buildCommand: ""
+    startCommand: "php -S 0.0.0.0:10000 -t public"
+    rootDir: .
+    autoDeploy: true
+
+  - type: worker
+    name: admin-bot
+    env: docker
+    plan: free
+    buildCommand: ""
+    startCommand: |
+      while true; do
+        php /opt/render/project/src/admin_bot.php
+        sleep 60
+      done
+    dockerfilePath: ./Dockerfile.bot
