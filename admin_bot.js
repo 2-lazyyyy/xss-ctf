@@ -7,24 +7,31 @@ const ADMIN_COOKIE = {
     value: 'flag{n1c3_j0b_1n_8ssd0m_1nject10n}',
     path: '/',
     httpOnly: false,
-    domain: 'dom-xss.onrender.com', // Use 'domain' instead of 'url' for setCookie()
+    domain: 'dom-xss.onrender.com',
 };
 
-// Custom delay function
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-(async () => {
-    console.log('[*] Fetching queue...');
-
-    let fetchFn;
-    try {
-        fetchFn = (typeof fetch !== 'undefined')
-            ? fetch
-            : (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
-    } catch (e) {
-        console.error('[!] Failed to load fetch module:', e.message);
-        return;
+async function fetchFn(...args) {
+    if (typeof fetch !== 'undefined') {
+        return fetch(...args);
+    } else {
+        const { default: fetch } = await import('node-fetch');
+        return fetch(...args);
     }
+}
+
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+async function checkQueueAndVisit() {
+    console.log('[*] Fetching queue...');
 
     let res;
     try {
@@ -76,14 +83,12 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
         }
         console.log('[*] Done.');
     }
-})();
-
-// Validate URL
-function isValidUrl(string) {
-    try {
-        new URL(string);
-        return true;
-    } catch (_) {
-        return false;
-    }
 }
+
+(async () => {
+    while (true) {
+        await checkQueueAndVisit();
+        console.log('[*] Waiting 3 minutes before next check...\n');
+        await delay(180000); // 3 minutes
+    }
+})();
